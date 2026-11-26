@@ -1,1 +1,48 @@
+# ساخت خودکار APK و EXE روی سرورهای GitHub (رایگان) — بدون نصب هیچ ابزاری روی کامپیوتر شما
+name: build-apk-exe
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - name: Prepare Android project
+        working-directory: build-kits/android
+        run: |
+          npm install
+          npm run prepare-web
+          npx cap add android
+          node apply-icons.js
+          node apply-native.js
+          npx cap sync android
+      - name: Build debug APK
+        working-directory: build-kits/android/android
+        run: chmod +x gradlew && ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: owqat-apk
+          path: build-kits/android/android/app/build/outputs/apk/debug/*.apk
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Build EXE
+        working-directory: build-kits/windows
+        run: |
+          npm install
+          npm run dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: owqat-exe
+          path: |
+            build-kits/windows/dist/*.exe
 
