@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>آمار نصب اوقات شرعی</title>
+<style>
+  :root{--bg:#f5f0e4;--card:#fffef9;--p:#1a5c3a;--t:#1a2e1a;--m:#5a6b5a;--b:#d4c9a0;--a:#c9a227}
+  @media (prefers-color-scheme:dark){:root{--bg:#10201a;--card:#17302a;--t:#eaf3ec;--m:#a9c0b2;--b:#2e4c41}}
+  *{box-sizing:border-box}
+  body{margin:0;padding:16px;background:var(--bg);color:var(--t);font-family:Tahoma,"Vazirmatn",sans-serif;line-height:1.7}
+  .w{max-width:720px;margin:0 auto}
+  h1{font-size:1.25rem;margin:.2rem 0 1rem;color:var(--p)}
+  .card{background:var(--card);border:1px solid var(--b);border-radius:14px;padding:14px;margin-bottom:12px}
+  label{display:block;font-size:.85rem;color:var(--m);margin:.5rem 0 .2rem}
+  input{width:100%;padding:.55rem .7rem;border:1px solid var(--b);border-radius:8px;background:transparent;color:var(--t);font:inherit;direction:ltr}
+  button{margin-top:.8rem;padding:.6rem 1.2rem;border:0;border-radius:10px;background:var(--p);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .n{font-size:2rem;font-weight:800;color:var(--p)} .l{font-size:.85rem;color:var(--m)}
+  .big .n{font-size:2.8rem;color:var(--a)}
+  table{width:100%;border-collapse:collapse} td,th{padding:.3rem .4rem;text-align:right;border-bottom:1px solid var(--b)}
+  .bar{height:10px;background:var(--p);border-radius:5px}
+  #err{color:#b3261e;font-weight:600}
+</style>
+</head>
+<body><div class="w">
+<h1>آمار نصب اوقات شرعی</h1>
+<div class="card" id="login">
+  <label>نشانی Web app (از Apps Script)</label><input id="url" placeholder="https://script.google.com/macros/s/.../exec">
+  <label>کلید مدیر (ADMIN_KEY)</label><input id="key" type="password">
+  <button id="go">نمایش آمار</button> <span id="err"></span>
+</div>
+<div id="out" hidden>
+  <div class="card big"><div class="grid">
+    <div><div class="n" id="inst">–</div><div class="l">تعداد نصب (APK + EXE + نصب از مرورگر)</div></div>
+    <div><div class="n" id="tot">–</div><div class="l">کل دستگاه‌ها (با بازدید وب)</div></div>
+  </div></div>
+  <div class="card"><div class="grid">
+    <div><div class="n" id="apk">–</div><div class="l">اندروید (APK)</div></div>
+    <div><div class="n" id="exe">–</div><div class="l">ویندوز (EXE)</div></div>
+    <div><div class="n" id="pwa">–</div><div class="l">نصب از مرورگر (PWA)</div></div>
+    <div><div class="n" id="web">–</div><div class="l">فقط بازدید مرورگر</div></div>
+  </div></div>
+  <div class="card"><div class="grid">
+    <div><div class="n" id="a7">–</div><div class="l">فعال در ۷ روز گذشته</div></div>
+    <div><div class="n" id="a30">–</div><div class="l">فعال در ۳۰ روز گذشته</div></div>
+  </div></div>
+  <div class="card"><b>نصب جدید در ۳۰ روز گذشته</b><table id="daily"></table></div>
+  <div class="card"><b>نسخه‌ها</b><table id="ver"></table></div>
+</div>
+</div>
+<script>
+const $=id=>document.getElementById(id), fa=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+try{$('url').value=localStorage.getItem('owqat_stats_url')||'';}catch(e){}
+async function load(){
+  $('err').textContent='';
+  const u=$('url').value.trim(), k=$('key').value;
+  if(!u||!k){$('err').textContent='نشانی و کلید را وارد کنید.';return;}
+  try{
+    const r=await fetch(u+(u.includes('?')?'&':'?')+'a=stats&key='+encodeURIComponent(k)), j=await r.json();
+    if(!j.ok){$('err').textContent='کلید یا نشانی نادرست است.';return;}
+    try{localStorage.setItem('owqat_stats_url',u);}catch(e){}
+    $('inst').textContent=fa(j.installs); $('tot').textContent=fa(j.total_devices);
+    ['apk','exe','pwa','web'].forEach(p=>$(p).textContent=fa(j.by_platform[p]||0));
+    $('a7').textContent=fa(j.active_7d); $('a30').textContent=fa(j.active_30d);
+    const days=Object.keys(j.new_per_day_30d).sort().reverse(), mx=Math.max(1,...Object.values(j.new_per_day_30d));
+    $('daily').innerHTML=days.map(d=>`<tr><td>${d}</td><td>${fa(j.new_per_day_30d[d])}</td><td style="width:50%"><div class="bar" style="width:${j.new_per_day_30d[d]/mx*100}%"></div></td></tr>`).join('')||'<tr><td>هنوز دادهای نیست</td></tr>';
+    $('ver').innerHTML=Object.entries(j.versions).sort().reverse().map(([v,c])=>`<tr><td dir="ltr">${v}</td><td>${fa(c)}</td></tr>`).join('');
+    $('out').hidden=false;
+  }catch(e){$('err').textContent='اتصال برقرار نشد (آدرس را بررسی کنید یا فیلترشکن/اینترنت را چک کنید).';}
+}
+$('go').onclick=load;
+</script>
+</body></html>

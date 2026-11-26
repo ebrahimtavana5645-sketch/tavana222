@@ -1,0 +1,34 @@
+{
+  "name": "owqat-android",
+  "version": "4.15.5",
+  "private": true,
+  "scripts": {
+    "prepare-web": "node prepare-web.js",
+    "add": "npx cap add android",
+    "native": "node apply-native.js",
+    "sync": "npm run prepare-web && npx cap sync android",
+    "open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@fontsource/vazirmatn": "^5.0.0",
+    "@fontsource/noto-naskh-arabic": "^5.0.0",
+    "@fontsource/noto-kufi-arabic": "^5.0.0",
+    "@fontsource/amiri": "^5.0.0",
+    "@fontsource/amiri-quran": "^5.0.0",
+    "@fontsource/aref-ruqaa": "^5.0.0",
+    "@fontsource/reem-kufi": "^5.0.0",
+    "@fontsource/katibeh": "^5.0.0",
+    "@fontsource/scheherazade-new": "^5.0.0",
+    "@fontsource/noto-nastaliq-urdu": "^5.0.0",
+    "@fontsource/lateef": "^5.0.0",
+    "html2canvas": "1.4.1",
+    "jspdf": "2.5.1",
+    "xlsx": "0.18.5",
+    "pdfjs-dist": "3.11.174",
+    "@capacitor/filesystem": "^6.0.0",
+    "@capacitor/share": "^6.0.0"
+  }
+}

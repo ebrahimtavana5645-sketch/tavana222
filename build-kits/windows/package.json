@@ -1,0 +1,57 @@
+{
+  "name": "owqat-windows",
+  "productName": "اوقات شرعی",
+  "version": "4.15.5",
+  "main": "main.js",
+  "description": "اوقات شرعی نمازهای پنجگانه",
+  "scripts": {
+    "start": "electron .",
+    "dist": "node prepare-app.js && electron-builder --win portable nsis"
+  },
+  "build": {
+    "appId": "ir.owqat.prayertimes",
+    "productName": "Owqat",
+    "files": [
+      "main.js",
+      "server.js",
+      "native.js",
+      "preload.js",
+      "app/**/*"
+    ],
+    "win": {
+      "icon": "app/icons/icon-512.png",
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "اوقات شرعی",
+      "artifactName": "Owqat-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Owqat-Portable-${version}.${ext}"
+    }
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "@fontsource/vazirmatn": "^5.0.0",
+    "@fontsource/noto-naskh-arabic": "^5.0.0",
+    "@fontsource/noto-kufi-arabic": "^5.0.0",
+    "@fontsource/amiri": "^5.0.0",
+    "@fontsource/amiri-quran": "^5.0.0",
+    "@fontsource/aref-ruqaa": "^5.0.0",
+    "@fontsource/reem-kufi": "^5.0.0",
+    "@fontsource/katibeh": "^5.0.0",
+    "@fontsource/scheherazade-new": "^5.0.0",
+    "@fontsource/noto-nastaliq-urdu": "^5.0.0",
+    "@fontsource/lateef": "^5.0.0",
+    "html2canvas": "1.4.1",
+    "jspdf": "2.5.1",
+    "xlsx": "0.18.5",
+    "pdfjs-dist": "3.11.174"
+  }
+}

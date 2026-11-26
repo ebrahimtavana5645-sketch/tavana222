@@ -1,0 +1,6 @@
+{
+  "appId": "ir.owqat.prayertimes",
+  "appName": "اوقات شرعی",
+  "webDir": "www",
+  "server": { "androidScheme": "https" }
+}
